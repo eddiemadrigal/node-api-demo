@@ -1,11 +1,7 @@
 const express = require("express");
-
 const server = express();
-
 const shortid = require('shortid');
-
 let users = [];
-
 server.use(express.json());
 
 // GET endpoints
@@ -116,7 +112,6 @@ server.put("/api/users/:id", (req, res) => {
   } else if (user) {
     user.name = req.body.name;
     user.bio = req.body.bio;
-
     res
       .status(200)
       .json({ message: `User ${userId} updated successfully.` })
@@ -130,4 +125,16 @@ server.put("/api/users/:id", (req, res) => {
 
 const port = 5000;
 
-server.listen(port, () => console.log(`\n Server running on host: localhost:${port}`));
+let address, os = require('os'), ifaces = os.networkInterfaces();
+
+for ( let dev in ifaces ) {
+  let iface = ifaces[dev].filter( details => {
+    return details.family === 'IPv4' && details.internal === false;
+  });
+
+  if (iface.length > 0) address = iface[0].address;
+
+}
+
+server.listen(port, () => 
+  console.log(`\nServer running ...\n  localhost:${port} \n  Network: ${address}:${port}`));

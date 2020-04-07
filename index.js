@@ -2,17 +2,14 @@ const express = require("express");
 
 const server = express();
 
-let users = [
-  {
-    id: 1,
-    name: "Eddie",
-    bio: "Bio for Eddie"
-  }
-];
+const shortid = require('shortid');
+
+let users = [];
 
 server.use(express.json());
 
 // GET endpoints
+
 server.get("/", (req, res) => {
   res.json({ api: "running ..." })
 });
@@ -50,7 +47,8 @@ server.get("/api/users/:id", (req, res) => {
 // POST endpoints
 
 server.post("/api/users", (req, res) => {
-  const userInfo = req.body;
+  let userInfo = req.body;
+  userInfo.id = shortid.generate();
 
   if (userInfo.name == "" || userInfo.bio == "") {
     res
@@ -107,12 +105,26 @@ server.put("/api/users/:id", (req, res) => {
     return user.id == userId;
   })[0];
 
-  user.name = req.body.name;
-  user.bio = req.body.bio;
+  if (!user) {
+    res
+      .status(404)
+      .json({ message: "The user with the specified ID does not exist." })
+  } else if (req.body.name == "" || req.body.bio == "") {
+    res
+      .status(400)
+      .json({ errorMessage: "Please provide a name and bio for the user." })
+  } else if (user) {
+    user.name = req.body.name;
+    user.bio = req.body.bio;
 
-  res
-    .status(200)
-    .json({ message: `User ${userId} updated successfully.` })
+    res
+      .status(200)
+      .json({ message: `User ${userId} updated successfully.` })
+  } else {
+    res
+      .status(500)
+      .json({ errorMessage: "The user information could not be modified." })
+  }
 
 })
 

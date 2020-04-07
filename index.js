@@ -101,29 +101,19 @@ server.delete("/api/users/:id", (req, res) => {
 
 server.put("/api/users/:id", (req, res) => {
     
-  const updateUser = req.body;
   const userId = req.params.id;
-  const oldUser = users.find(i => i.id === Number(userId));
 
-  if (users.find(i => i.id == (userId))) {
-    if (req.body.name.length > 0 || req.body.bio.length > 0) {
-      if (oldUser === updateUser) {
-        res.status(500).json({ errorMessage: "The user information could not be found." })
-      } else {
-        updateUser.id = users.length
-        users = [
-          ...users.slice(0, oldUser.id),
-          updateUser,
-          users.slice(oldUser.id + 1)
-        ]
-        res.status(200).json(users)
-      }
-    } else {
-      res.status(400).json({ errorMessage: "Please provide a name and bio for the user." })
-    }
-  } else {
-    res.status(404).json({ message: "The user with the specified id does not exist" })
-  }
+  let user = users.filter( user => {
+    return user.id == userId;
+  })[0];
+
+  user.name = req.body.name;
+  user.bio = req.body.bio;
+
+  res
+    .status(200)
+    .json({ message: `User ${userId} updated successfully.` })
+
 })
 
 const port = 5000;
